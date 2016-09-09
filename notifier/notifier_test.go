@@ -1,18 +1,21 @@
 package notifier
 
-import "testing"
+import (
+	"github.com/tompscanlan/q3errord"
+	"testing"
+)
 
 var notifyTests = []struct {
-	in    ServiceError
+	in    q3errord.ServiceError
 	valid bool
 }{
-	{ServiceError{Service: "testing", Message: "some messages 1"},
+	{q3errord.ServiceError{Service: "testing", Message: "some messages 1"},
 		true},
 
-	{ServiceError{Service: "testing", Message: "some messages 2"},
+	{q3errord.ServiceError{Service: "testing", Message: "some messages 2"},
 		true},
 
-	{ServiceError{Service: "testing", Message: "some messages 3"},
+	{q3errord.ServiceError{Service: "testing", Message: "some messages 3"},
 		true},
 }
 
