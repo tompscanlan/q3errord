@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/tompscanlan/q3errord"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/tompscanlan/q3errord"
 )
 
 type SlackMsg struct {
@@ -28,14 +29,14 @@ func (sn SlackNotifier) Send(se q3errord.ServiceError) {
 	sn.PostSlack(fmt.Sprintf("%s: (%s)", se.Service, se.Message))
 }
 
-func (sn SlackNotifier) PostSlack(message string) error {
+func (sn SlackNotifier) PostSlack(message string) {
 
 	msg := new(SlackMsg)
 	msg.Text = message
 
 	jsonStr, err := json.Marshal(msg)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	log.Println("json: ", string(jsonStr[:]))
 	req, err := http.NewRequest("POST", sn.WebhookUrl, bytes.NewBuffer(jsonStr))
@@ -44,13 +45,13 @@ func (sn SlackNotifier) PostSlack(message string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	log.Println("response Status:", resp.Status)
+	log.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-	return nil
+	log.Println("response Body:", string(body))
+
 }
