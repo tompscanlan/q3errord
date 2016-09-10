@@ -37,6 +37,7 @@ func (sn SlackNotifier) PostSlack(message string) {
 	jsonStr, err := json.Marshal(msg)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	log.Println("json: ", string(jsonStr[:]))
 	req, err := http.NewRequest("POST", sn.WebhookUrl, bytes.NewBuffer(jsonStr))
@@ -46,6 +47,7 @@ func (sn SlackNotifier) PostSlack(message string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -53,5 +55,4 @@ func (sn SlackNotifier) PostSlack(message string) {
 	log.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println("response Body:", string(body))
-
 }
