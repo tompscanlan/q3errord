@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/smtp"
@@ -14,22 +15,24 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var verbose = kingpin.Flag("verbose", "Verbose mode.").Short('v').Bool()
-var port = kingpin.Flag("port", "port to listen on").Default(listenPortDefault).OverrideDefaultFromEnvar("PORT").Short('l').Int()
-var username = kingpin.Flag("username", "username for SMTP auth").Short('u').String()
-var password = kingpin.Flag("password", "password for SMTP auth").Short('p').String()
-var slackurl = kingpin.Flag("slack-webhook", "url for a slack input webhook").String()
-var smtpserver = kingpin.Flag("smtp-server", "smtp server we can send mail through").Short('s').String()
-var smtpport = kingpin.Flag("smtp-port", "smtp server we can send mail through").Default("587").Int()
-var from = kingpin.Flag("from", "email to set as sender of notifications").Default("tscanlan@vmware.com").String()
-var to = kingpin.Flag("to", "list of email addresses to send notifications to").Default("tscanlan@vmware.com", "tompscanlan@gmail.com").Strings()
+var (
+	verbose    = kingpin.Flag("verbose", "Verbose mode.").Short('v').Bool()
+	port       = kingpin.Flag("port", "port to listen on").Default(listenPortDefault).OverrideDefaultFromEnvar("PORT").Short('l').Int()
+	username   = kingpin.Flag("username", "username for SMTP auth").Short('u').String()
+	password   = kingpin.Flag("password", "password for SMTP auth").Short('p').String()
+	slackurl   = kingpin.Flag("slack-webhook", "url for a slack input webhook").String()
+	smtpserver = kingpin.Flag("smtp-server", "smtp server we can send mail through").Short('s').String()
+	smtpport   = kingpin.Flag("smtp-port", "smtp server we can send mail through").Default("587").Int()
+	from       = kingpin.Flag("from", "email to set as sender of notifications").Default("tscanlan@vmware.com").String()
+	to         = kingpin.Flag("to", "list of email addresses to send notifications to").Default("tscanlan@vmware.com", "tompscanlan@gmail.com").Strings()
 
-// ServiceErrors is a list of all service errors
-var ServiceErrors = []*q3errord.ServiceError{}
-var lock = sync.RWMutex{}
+	// ServiceErrors is a list of all service errors
+	ServiceErrors = []*q3errord.ServiceError{}
+	lock          = sync.RWMutex{}
 
-// Notify is set to the type of notifier we want to use
-var Notify q3errord.Notifier
+	// Notify is set to the type of notifier we want to use
+	Notify q3errord.Notifier
+)
 
 const (
 	listenPortDefault = "8080"
@@ -81,7 +84,7 @@ func main() {
 		log.Fatal(err)
 	}
 	api.SetApp(router)
-	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), api.MakeHandler()))
 }
 
 func GetAllErrors(w rest.ResponseWriter, r *rest.Request) {
